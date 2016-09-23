@@ -1,0 +1,8 @@
+{application, mf2erl, [
+                       {description, "A microformats-v2 parser"},
+                       {vsn, "0.0.1"},
+                       {modules, []},
+                       {registered, []},
+                       {applications, [kernel, stdlib, mochiweb]},
+                       {env, []}
+                      ]}.
