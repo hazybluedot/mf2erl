@@ -32,16 +32,16 @@ main(Args) ->
     
     lists:foreach(fun(TestFile) ->
                           %io:format("~s:~n", [TestFile]),
-                          case mf2_parse:parse_file(TestFile) of
+                          try mf2_parse:parse_file(TestFile) of
                               Result -> io:format("~s~n", [Result])
+                          %%end
+                          catch
+                              Exception:Reason -> {caught, Exception, Reason},
+                                                  io:format("~s: Exception: ~p~n", [TestFile,Reason])
+                                                      , io:format("~p~n", [Exception])
+                                                      , erlang:error(Reason)
+                                                      
                           end
-                          %catch
-                          %    Exception:Reason -> {caught, Exception, Reason},
-                          %                        io:format("~s: Exception: ~p~n", [TestFile,Reason])
-                          %                            , io:format("~p~n", [Exception])
-                          %                            , erlang:error(Reason)
-                          %                            
-                          %end
                   end, TestFiles).
     
     
