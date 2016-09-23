@@ -43,6 +43,8 @@ parse_file(File) ->
         _ -> { error, "Could not read file" }
     end.
 
+merge_props(#item{}=Item,Items) when erlang:is_list(Items) ->
+    [Item|Items];
 merge_props(Props1, Props2) when erlang:is_list(Props1) and erlang:is_list(Props2) ->
     %%io:format("merging ~p with ~p~n", [Props1,Props2]),
     lists:foldl(fun(Prop, Acc) ->
