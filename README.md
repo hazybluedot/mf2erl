@@ -2,11 +2,11 @@
 
 Disclaimer: This is still a work in progress, some required features are not yet implemented (See the Known Issues section below).
 
-This is a first-pass at a [microformats v2] parser written in Erlang. It is a component of a CouchDB webmention plugin I am working on to making my CouchDB based website indieweb compatible and self-contained (I'm currently using a [Python-based webmention server](indie-flask)).
+This is a first-pass at a [microformats v2] parser written in Erlang. It is a component of a CouchDB webmention plugin I am working on to making my CouchDB based website indieweb compatible and self-contained (I'm currently using a [Python-based webmention server][indie-flask]).
 
 ## Known issues
 
-The following features of the [microformats-v2 parsing algorithm](mf2parsing) are not yet implemented:
+The following features of the [microformats-v2 parsing algorithm][mf2parsing] are not yet implemented:
 
 - Backcompat
 - Embedded content
