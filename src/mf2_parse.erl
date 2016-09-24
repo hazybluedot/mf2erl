@@ -16,8 +16,8 @@
 
 -export([parse/1, parse_file/1]).
 
--import(mf2, [unfold/1, make_item/2]).
--import(mf2_tree, [has_root_names/1, properties/2, onlynodes/1]).
+-import(mf2, [unfold/1, make_item/2, is_root_node/1]).
+-import(mf2_tree, [onlynodes/1]).
 
 -include_lib("mf2.hrl").
 
@@ -45,6 +45,8 @@ parse_file(File) ->
 
 merge_props(#item{}=Item,Items) when erlang:is_list(Items) ->
     [Item|Items];
+merge_props([#item{}|_]=Children, Items) when erlang:is_list(Items) ->
+    mf2_proplist:add({<<"children">>, Children}, Items);
 merge_props(Props1, Props2) when erlang:is_list(Props1) and erlang:is_list(Props2) ->
     %%io:format("merging ~p with ~p~n", [Props1,Props2]),
     lists:foldl(fun(Prop, Acc) ->
@@ -55,8 +57,8 @@ item_or_props({_,_,_} = El, ElProps, ChildProps) when erlang:is_list(ElProps) an
     %%io:format("item or props for ~p~n", [El]),
     MergedProps = merge_props(ElProps, ChildProps),
     %%io:format("merged: ~p~n", [MergedProps]),
-    case has_root_names(El) of
-        true -> Item = make_item(properties(root, El), mf2_property:implied(El, ChildProps)),
+    case is_root_node(El) of
+        true -> Item = make_item(mf2_property:root_names(El), mf2_property:implied(El, ChildProps)),
                 case ElProps of
                     [] -> Item;
                     _ ->
@@ -87,17 +89,10 @@ parse_node({_,_,Children} = El) ->
              end,
     item_or_props(El, parse_properties(El), Props0).
 
-foldtype(Type, El, Acc) ->
-    lists:foldl(fun(PropName, Acc0) ->
-                        Value = mf2_property:value(Type, El),
-                        %%io:format("adding {~s, ~s} to proplist~n", [PropName, Value]),
-                        mf2_proplist:add(PropName, Value, Acc0)
-                end, Acc, properties(Type, El)).
-
 parse_properties({_Name, _Attrs, _Children} = El) ->
     %%io:format("Folding for type ~p from ~p~n", [text, properties(text, El)]),
-    lists:foldl(fun(Type, Acc) ->
-                        foldtype(Type, El, Acc)
-                end, [], [text, url, datetime]).            
+    lists:foldl(fun({Name,Value}, Acc) ->
+                        mf2_proplist:add(Name, Value, Acc)
+                end, [], mf2_property:properties(El)).            
                                                                              
                                                                             

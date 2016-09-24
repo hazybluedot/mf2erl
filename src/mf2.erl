@@ -18,7 +18,12 @@
 
 -export([make_item/2, make_item/3, 
          push_item/2, 
-         unfold/1]).
+         unfold/1,
+        is_property_node/1,
+        is_root_node/1,
+        propname_split/1]).
+
+-import(lists, [any/2]).
 
 make_item(Type, Props, Children) ->
     %%io:format("making item type=~p, props=~p~n", [Type, Props]),
@@ -29,13 +34,13 @@ make_item(Type, Props) ->
     make_item(Type, Props, []).
 
 unfold(#item{type=Type, properties=Properties, children=Children, value=SimpleValue} = _Item) ->
-    Base = [{"type", lists:map(fun erlang:list_to_binary/1, Type)},
-     {"properties", lists:map(fun({Name, Values}) ->
-                                      {Name, lists:map(fun(#item{}=Item) ->
-                                                               unfold(Item);
-                                                         (Value) -> Value
-                                                      end, Values)}
-                             end, Properties)}],
+    Base = [{"type", Type},
+            {"properties", lists:map(fun({Name, Values}) ->
+                                             {Name, lists:map(fun(#item{}=Item) ->
+                                                                      unfold(Item);
+                                                                 (Value) -> Value
+                                                              end, Values)}
+                                     end, Properties)}],
     Base1 = case Children of
                 %% only add children struct if there are children
                 [] -> Base;
@@ -51,3 +56,18 @@ push_item(#item{} = Item, {[], _Rels, _RelUrls}) ->
 push_item(#item{}=Item, {Items, _Rels, _RelUrls}) ->
     {[Item|Items], _Rels, _RelUrls}.
 
+propname_split(String) when erlang:is_binary(String) ->
+    [Prefix|Name] = string:tokens(erlang:binary_to_list(String), "-"),
+    { erlang:list_to_atom(Prefix), erlang:list_to_binary(Name) }. %%TODO: might have to join Name                                    
+get_prefix(String) ->
+    {Prefix, _ } = propname_split(String),
+    Prefix.
+
+is_property_node({_,_,_} = El) ->
+    any(fun(Name) ->
+                lists:member(get_prefix(Name), ?PropertyPrefix)
+        end, mf2_tree:class_properties(El)).
+is_root_node({_,_,_} = El) ->
+    any(fun(Name) ->
+                lists:member(get_prefix(Name), ?RootPrefix)
+        end, mf2_tree:class_properties(El)).

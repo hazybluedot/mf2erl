@@ -22,9 +22,8 @@
 %%    case lists:member(Name, [name, url, 
 add({Name, Value}, List) ->
     add(Name, Value, List).
-add(Name, Value, List) ->
-    Normalized = erlang:list_to_binary(name_of(Name)),
-    Value0 = proplists:append_values(Normalized, [ {Normalized, Value} | List ]),
-    List1 = proplists:delete(Normalized, List),
-    [ {Normalized, Value0} | List1 ].
+add(Name, Value, List) when erlang:is_binary(Name) ->
+    Value0 = proplists:append_values(Name, [ {Name, Value} | List ]),
+    List1 = proplists:delete(Name, List),
+    [ {Name, Value0} | List1 ].
                                              

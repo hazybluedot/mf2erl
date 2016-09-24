@@ -9,7 +9,6 @@ This is a first-pass at a [microformats v2] parser written in Erlang. It is one 
 The following features of the [microformats-v2 parsing algorithm][mf2parsing] are not yet implemented:
 
 - Backcompat
-- Embedded content
 - No rels/rel-urls parsing
 - Possibly some of the implied property rules
 
